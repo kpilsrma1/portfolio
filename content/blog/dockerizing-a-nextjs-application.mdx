@@ -1,0 +1,141 @@
+---
+title: "Dockerizing a Next.js application with a multi-stage build"
+description: "How to package a Next.js app into a small, production-ready Docker image using standalone output, a multi-stage Dockerfile, and a non-root runtime user."
+date: "2026-09-29"
+tags: ["docker", "nextjs", "deployment"]
+status: "published"
+author: "Kapil Sharma"
+---
+
+Shipping a web application as a container removes a whole class of "works on my machine" problems. The image carries the runtime, the dependencies, and the build output, so the server only needs Docker. This article walks through the Dockerfile used for this portfolio and explains each decision with reference to the official Docker and Next.js documentation.
+
+## What we are optimising for
+
+A production image should be:
+
+- **Small.** Fewer bytes to pull, fewer packages to patch.
+- **Reproducible.** The same lockfile produces the same dependency tree.
+- **Safe by default.** The process runs as a non-root user and has no build tooling inside it.
+- **Observable.** A health check tells the orchestrator whether the app is actually serving.
+
+Multi-stage builds are the standard way to get all four. The [Docker documentation on multi-stage builds](https://docs.docker.com/build/building/multi-stage/) describes the idea: use one stage to build, then copy only the artefacts you need into a clean final stage.
+
+## Enable standalone output
+
+By default `next build` produces a `.next` directory that still depends on `node_modules` at runtime. Setting `output: "standalone"` in `next.config.ts` makes Next.js trace the files each route actually needs and copy them into `.next/standalone`, including a minimal `server.js`. The [Next.js `output` documentation](https://nextjs.org/docs/app/api-reference/config/next-config-js/output) covers this option.
+
+```ts title="next.config.ts"
+import type { NextConfig } from "next";
+
+const nextConfig: NextConfig = {
+  output: "standalone",
+};
+
+export default nextConfig;
+```
+
+Two folders are not included in the standalone output and must be copied separately: `public/` and `.next/static/`. The Dockerfile below handles both.
+
+## The Dockerfile
+
+```dockerfile title="Dockerfile"
+# syntax=docker/dockerfile:1
+
+FROM node:24-alpine AS base
+WORKDIR /app
+ENV NEXT_TELEMETRY_DISABLED=1
+
+FROM base AS deps
+COPY package.json package-lock.json ./
+RUN npm ci
+
+FROM base AS builder
+COPY --from=deps /app/node_modules ./node_modules
+COPY . .
+RUN npm run build
+
+FROM base AS runner
+ENV NODE_ENV=production
+ENV PORT=3000
+ENV HOSTNAME=0.0.0.0
+
+RUN addgroup --system --gid 1001 nodejs \
+  && adduser --system --uid 1001 nextjs
+
+COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
+COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
+COPY --from=builder --chown=nextjs:nodejs /app/public ./public
+
+USER nextjs
+EXPOSE 3000
+
+HEALTHCHECK --interval=30s --timeout=5s --start-period=15s --retries=3 \
+  CMD wget -qO- http://127.0.0.1:3000/api/health || exit 1
+
+CMD ["node", "server.js"]
+```
+
+### Stage by stage
+
+**`base`** pins the Node.js version. Using an LTS release on Alpine keeps the image small; Alpine images use `musl` rather than `glibc`, which is fine for Next.js but worth knowing if you add native dependencies later.
+
+**`deps`** copies only the manifest and lockfile before running `npm ci`. Because Docker caches layers by the files they depend on, this layer is reused until the lockfile changes. Editing application code does not trigger a reinstall. The [`npm ci` documentation](https://docs.npmjs.com/cli/commands/npm-ci) explains why it is preferred over `npm install` in automated environments: it fails if the lockfile and `package.json` disagree.
+
+**`builder`** copies the cached `node_modules` and the source, then runs the production build. Nothing from this stage except the build output ends up in the final image.
+
+**`runner`** starts again from the clean base image. It creates a system user, copies the standalone server, static assets, and `public/` with the right ownership, and switches to the non-root user before starting. There is no `npm`, no source code, and no dev dependencies in this stage.
+
+## Keep the build context small
+
+Docker sends the build context to the daemon before the first instruction runs. A `.dockerignore` file keeps `node_modules`, `.next`, `.git`, and local environment files out of the context, which speeds up the build and prevents secrets in `.env` files from being copied into an image layer.
+
+```text title=".dockerignore"
+node_modules
+.next
+.git
+.env
+.env.*
+!.env.example
+coverage
+test-results
+playwright-report
+```
+
+## Health checks
+
+The `HEALTHCHECK` instruction lets Docker mark the container as `healthy` or `unhealthy`, which Compose and Portainer surface in their UIs. The check above calls a lightweight route handler that returns `200 OK`. Keep it cheap: it runs every thirty seconds for the life of the container.
+
+```ts title="src/app/api/health/route.ts"
+export function GET() {
+  return Response.json({ status: "ok" });
+}
+```
+
+## Running it with Compose
+
+A minimal Compose file binds a configurable host port to the container's port 3000 and restarts the service if it crashes.
+
+```yaml title="docker-compose.yml"
+services:
+  portfolio:
+    build: .
+    image: ${IMAGE_NAME:-kapil-portfolio}:${IMAGE_TAG:-latest}
+    restart: unless-stopped
+    ports:
+      - "${HOST_PORT:-3005}:3000"
+    environment:
+      NEXT_PUBLIC_SITE_URL: ${NEXT_PUBLIC_SITE_URL}
+```
+
+Behind a reverse proxy such as Nginx Proxy Manager, you can drop the `ports` mapping entirely and attach the service to the proxy's Docker network instead, so the application is reachable only through the proxy.
+
+## Things that commonly go wrong
+
+- **Missing static assets.** If pages render without styles, `.next/static` was not copied into the final image.
+- **Environment variables baked at build time.** Anything prefixed `NEXT_PUBLIC_` is inlined during `next build`. Set those values as build arguments or rebuild when they change.
+- **Permission errors on start.** Make sure the `COPY --chown` flags match the user you switch to with `USER`.
+- **Slow rebuilds.** If every code change reinstalls dependencies, the `COPY package.json package-lock.json` step is probably after a broader `COPY . .`.
+
+## Summary
+
+Standalone output plus a multi-stage Dockerfile gives you a small image that runs as a non-root user, rebuilds quickly thanks to layer caching, and reports its own health. It is the same pattern used to deploy this site, and it transfers directly to any Node.js service.

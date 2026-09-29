@@ -1,0 +1,208 @@
+---
+description: Git workflow for module-based branches, local commits, and pull requests
+alwaysApply: true
+---
+
+# Git Workflow Rules
+
+## 1. Git Author Identity
+
+Always use this Git author identity for commits:
+
+- Name: kpilsrma1
+- Email: kpilsrma1@users.noreply.github.com
+
+Before committing, verify the repository-local Git identity.
+
+If it is incorrect, configure it locally:
+
+```bash
+git config user.name "kpilsrma1"
+git config user.email "kpilsrma1@users.noreply.github.com"
+```
+
+Do not modify global Git configuration.
+
+Never put a personal email address in commits, commit messages, or tracked files. The GitHub noreply address above is the only email that may appear in Git metadata.
+
+Never add `Co-authored-by: Cursor`, `Made with Cursor`, or any other AI or editor attribution trailer to a commit message or pull request. After every commit, inspect the full message with `git log -1 --format=%B` and, if such a trailer was injected by tooling, stop and report it instead of pushing.
+
+## 2. Branch Strategy
+
+Use a separate branch for every independent module, feature, bug fix, or significant task.
+
+Never develop directly on main, master, or production branches.
+
+Branch naming conventions:
+
+- `feature/module-name`
+- `feature/module-name-feature`
+- `fix/module-name-bug`
+- `refactor/module-name`
+- `docs/module-name`
+- `chore/module-name`
+
+Examples:
+
+- `feature/portfolio-home`
+- `feature/about-section`
+- `feature/projects-module`
+- `feature/experience-module`
+- `feature/contact-form`
+- `fix/navbar-mobile-layout`
+- `docs/deployment-guide`
+
+Before starting work:
+
+1. Inspect the current Git branch and working tree.
+2. Identify the module or task being implemented.
+3. Check whether a suitable branch already exists.
+4. If the task belongs to an existing unfinished module, continue on its branch.
+5. Otherwise, create a new branch from the latest appropriate base branch.
+
+Use the repository's configured default branch as the base unless the project explicitly defines another integration branch.
+
+Do not create duplicate branches for the same unfinished module.
+
+Do not switch branches if doing so would overwrite or lose uncommitted work.
+
+## 3. Module Isolation
+
+Keep each module's changes isolated to its own branch.
+
+For example:
+
+- Header, navigation, and footer: separate layout module branch.
+- Homepage sections: homepage branch.
+- Projects listing and filtering: projects module branch.
+- Individual project case studies: separate branch per substantial case study.
+- Contact form and email integration: contact module branch.
+- SEO, metadata, and sitemap: SEO branch.
+- Docker, Nginx, and deployment configuration: deployment branch.
+
+Do not combine unrelated modules in one branch.
+
+If a new task is independent of the current module, create a new branch before implementing it.
+
+If one module depends on another unfinished branch, do not silently merge unrelated work. Explain the dependency and use an explicitly approved integration strategy.
+
+## 4. Commit Frequently
+
+Create local Git commits after each meaningful, complete unit of work.
+
+Before every commit:
+
+1. Inspect git status and the diff.
+2. Review the changes for correctness.
+3. Stage only the relevant files.
+4. Never blindly stage unrelated files, secrets, environment files, generated files, or user changes.
+5. Run appropriate lint, type-check, tests, or build commands when available.
+6. Commit only when the changes are coherent and ready.
+
+Use human-friendly, clear, concise commit messages.
+
+Examples:
+
+- `feat(home): add responsive hero section`
+- `feat(projects): add project filtering`
+- `fix(navbar): correct mobile menu alignment`
+- `style(contact): improve form spacing`
+- `docs(deployment): document Portainer setup`
+- `refactor(layout): extract reusable section component`
+
+Do not mention AI, Cursor, or automated generation in commit messages.
+
+Never amend commits, force-push, reset user changes, or rewrite Git history without explicit permission.
+
+## 5. Pull Request Workflow
+
+After completing a module:
+
+1. Verify the module builds and its relevant tests pass.
+2. Ensure all module changes are committed on its dedicated branch.
+3. Push the branch to the remote repository only when the user has explicitly authorized remote operations.
+4. Create a pull request targeting the appropriate base branch when remote PR creation is authorized and supported.
+5. Keep each PR focused on one module or independent task.
+
+Use descriptive PR titles:
+
+- `feat: Add responsive homepage`
+- `feat: Implement projects portfolio module`
+- `feat: Add contact form and validation`
+- `fix: Resolve mobile navigation issues`
+
+Every PR description should include:
+
+### Summary
+
+What was implemented and why.
+
+### Changes
+
+Key files, features, and technical changes.
+
+### Validation
+
+Tests, lint, type-check, and build results.
+
+### Screenshots
+
+Include screenshots for visual changes when available.
+
+### Notes
+
+Mention dependencies, configuration requirements, or known limitations.
+
+Do not claim that a PR was created, pushed, or merged unless the corresponding operation actually succeeded.
+
+If GitHub CLI or another authorized PR mechanism is unavailable, prepare the branch and provide the exact PR title, description, and instructions for creating it manually.
+
+Never merge a PR without explicit user authorization.
+
+## 6. Remote Operations and Safety
+
+Local Git operations, including branch creation, staging, and commits, are permitted.
+
+Remote operations require explicit authorization.
+
+Do not push, create remote branches, open PRs, merge PRs, or modify remote repositories unless the user has explicitly authorized those actions.
+
+If remote authorization has not been provided:
+
+- Keep all commits local.
+- Do not push.
+- Do not create remote PRs.
+- Report that the branch and commits are ready for review.
+- Provide the proposed PR title and description.
+
+Never commit credentials, API keys, tokens, private keys, database passwords, or production configuration containing secrets.
+
+Never overwrite or discard existing user changes.
+
+## 7. Starting a New Module
+
+Whenever a new module or independent task is requested:
+
+1. Inspect the current repository and Git status.
+2. Identify the correct base branch.
+3. Create or switch to the dedicated module branch.
+4. Implement only that module.
+5. Validate and commit the changes locally.
+6. Prepare a focused PR.
+7. Push and create the PR only when explicitly authorized.
+
+For every new independent module, use a new dedicated branch.
+
+## 8. Completion Report
+
+After finishing a module, report:
+
+- Module name.
+- Branch name.
+- Files or features changed.
+- Commit hash and commit message.
+- Validation results.
+- PR status: not created, ready to create, or created with its actual URL.
+- Any remaining work or blockers.
+
+Never claim remote operations or successful validation that did not occur.

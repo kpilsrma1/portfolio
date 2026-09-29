@@ -1,0 +1,31 @@
+services:
+  portfolio:
+    image: ${IMAGE_NAME:-kapil-portfolio}:${IMAGE_TAG:-latest}
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        NEXT_PUBLIC_SITE_URL: ${NEXT_PUBLIC_SITE_URL:-https://KapilSahrma.mageiatech.com}
+    container_name: kapil-portfolio
+    restart: unless-stopped
+    ports:
+      # Host port is configurable so the container can sit next to other
+      # services on the same machine. The app always listens on 3000 inside.
+      - "${HOST_PORT:-3005}:3000"
+    environment:
+      NODE_ENV: production
+      # Optional contact form delivery. Leave unset to keep the form disabled.
+      RESEND_API_KEY: ${RESEND_API_KEY:-}
+      CONTACT_TO_EMAIL: ${CONTACT_TO_EMAIL:-}
+      CONTACT_FROM_EMAIL: ${CONTACT_FROM_EMAIL:-}
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:3000/api/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"

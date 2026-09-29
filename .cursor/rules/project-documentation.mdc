@@ -1,0 +1,529 @@
+---
+description: Maintain complete, up-to-date project documentation and module knowledge base
+alwaysApply: true
+---
+
+# Project Documentation and Knowledge Management Rules
+
+## 1. Main Objective
+
+Maintain a complete, continuously updated knowledge base for the entire project.
+
+The documentation must allow Cursor, future developers, and the project owner to understand:
+
+- What the project does.
+- How the application is structured.
+- What each module does.
+- How modules communicate with each other.
+- Which technologies, libraries, and skills are used.
+- Why technical decisions were made.
+- What has been completed, what is in progress, and what remains.
+- How to install, run, test, debug, and deploy the project.
+
+Documentation is a required part of development, not an optional activity.
+
+Never rely exclusively on conversation history or AI memory for project context.
+
+The repository documentation must be the primary source of truth.
+
+---
+
+## 2. Documentation Structure
+
+Create and maintain the following structure in the project root:
+
+```text
+docs/
+├── README.md
+├── PROJECT_OVERVIEW.md
+├── ARCHITECTURE.md
+├── TECH_STACK.md
+├── DATABASE.md
+├── API_REFERENCE.md
+├── DEVELOPMENT_GUIDE.md
+├── DEPLOYMENT.md
+├── SECURITY.md
+├── TESTING.md
+├── DECISIONS.md
+├── SKILLS_AND_LEARNINGS.md
+├── PROJECT_STATUS.md
+├── CHANGELOG.md
+└── modules/
+    ├── README.md
+    ├── layout.md
+    ├── homepage.md
+    ├── about.md
+    ├── experience.md
+    ├── skills.md
+    ├── projects.md
+    ├── contact.md
+    ├── seo.md
+    └── deployment.md
+```
+
+Adapt the module documentation files to the actual modules discovered in the repository.
+
+Do not create documentation for modules that do not exist merely because they appear in this example.
+
+Create a dedicated document for every significant module, feature, integration, or subsystem.
+
+For a substantial module, use a dedicated folder if it requires multiple documentation files.
+
+Keep the documentation organized, readable, and free of unnecessary duplication.
+
+---
+
+## 3. Project Overview Document
+
+Maintain `docs/PROJECT_OVERVIEW.md` as the primary project context document.
+
+It must include:
+
+- Project name and purpose.
+- Business goals and target audience.
+- Main features.
+- User roles and permissions, if applicable.
+- Technology stack.
+- High-level architecture.
+- Major modules and their responsibilities.
+- Internal and external integrations.
+- Repository structure.
+- Local development instructions.
+- Current project status.
+- Important constraints and known limitations.
+- Links to detailed module documentation.
+
+Update this document whenever the overall project scope, architecture, or major functionality changes.
+
+Keep it concise enough to serve as the first document Cursor reads.
+
+---
+
+## 4. Module Documentation
+
+Every significant module must have its own document under `docs/modules/`.
+
+For example:
+
+- `docs/modules/homepage.md`
+- `docs/modules/projects.md`
+- `docs/modules/contact.md`
+
+Each module document must follow this structure:
+
+```markdown
+# Module Name
+
+## 1. Purpose
+Explain what the module does and why it exists.
+
+## 2. Business Requirements
+Describe the requirements and expected user behavior.
+
+## 3. Features
+List implemented features and planned features separately.
+
+## 4. Technical Implementation
+Describe how the module is implemented, including:
+
+- Components and pages.
+- Services, hooks, utilities, and helpers.
+- Relevant routes.
+- State management.
+- Data flow.
+- Validation and error handling.
+- Authentication and authorization, if applicable.
+
+## 5. File Structure
+List important files and explain their responsibilities.
+
+Only document files that actually exist.
+
+## 6. Dependencies
+Document:
+
+- Internal modules this module depends on.
+- Modules that depend on this module.
+- External packages and APIs.
+- Configuration and environment variables.
+
+Never include actual secrets or credentials.
+
+## 7. Design and UI
+Describe:
+
+- Layout and responsive behavior.
+- Reusable components.
+- Styling conventions.
+- Accessibility requirements.
+- Important UI decisions.
+
+## 8. Data and API
+Document relevant data structures, endpoints, request/response formats, and database interactions.
+
+Do not invent APIs, schemas, or endpoints.
+
+## 9. Technical Decisions
+Explain important implementation choices and their rationale.
+
+Link related entries in docs/DECISIONS.md.
+
+## 10. Testing
+Document available tests, test scenarios, and known gaps.
+
+Do not claim tests passed unless they were actually executed.
+
+## 11. Current Status
+Use one of these statuses:
+
+- Planned
+- In Progress
+- Implemented
+- Needs Testing
+- Blocked
+- Deprecated
+
+Include known issues and remaining tasks.
+
+## 12. Future Improvements
+List potential improvements separately from committed requirements.
+
+## 13. Update History
+Record the date and a brief description of meaningful documentation updates.
+
+Do not update the history with meaningless or repetitive entries.
+```
+
+---
+
+## 5. Mandatory Documentation Workflow
+
+Whenever starting a new module:
+
+1. Read `docs/PROJECT_OVERVIEW.md`.
+2. Read `docs/ARCHITECTURE.md` and `docs/TECH_STACK.md`.
+3. Read the relevant existing module documentation.
+4. Inspect the repository and identify existing patterns.
+5. Create the module documentation before or alongside implementation.
+6. Record the requirements, dependencies, and implementation plan.
+7. Update `docs/PROJECT_STATUS.md` to reflect the new work.
+
+Do not begin an independent implementation without understanding the existing project architecture.
+
+Whenever modifying an existing module:
+
+1. Read its documentation before making changes.
+2. Verify the documented behavior against the actual code.
+3. Implement the requested changes.
+4. Update the module document to reflect the final implementation.
+5. Update other affected documents if necessary.
+
+Documentation must describe the actual code, not an intended or imagined implementation.
+
+---
+
+## 6. Keep All Project Documents Synchronized
+
+Update relevant documents whenever code changes affect them.
+
+Examples:
+
+If a new dependency is added:
+
+- Update `TECH_STACK.md`.
+- Update the relevant module document.
+- Update `DEVELOPMENT_GUIDE.md` if installation or setup changes.
+
+If a route or API is added:
+
+- Update `API_REFERENCE.md` or the relevant routing documentation.
+- Update the module document.
+
+If the database changes:
+
+- Update `DATABASE.md`.
+- Update affected module documents.
+- Record relevant migrations and schema changes.
+
+If architecture changes:
+
+- Update `ARCHITECTURE.md`.
+- Update `PROJECT_OVERVIEW.md`.
+- Add a decision record to `DECISIONS.md` when appropriate.
+
+If deployment configuration changes:
+
+- Update `DEPLOYMENT.md`.
+- Update relevant environment variable documentation.
+- Update the deployment module document.
+
+If a module is removed or replaced:
+
+- Update its status.
+- Remove obsolete references.
+- Mark historical decisions as superseded where appropriate.
+
+Do not leave documentation describing deleted, renamed, or obsolete code as current.
+
+---
+
+## 7. Technology Stack and Skills Knowledge
+
+Maintain `docs/TECH_STACK.md` as the authoritative technical inventory.
+
+For each technology, library, framework, or service, record:
+
+- Name and version, when verifiable.
+- Purpose in the project.
+- Where it is used.
+- Why it is used.
+- Important integration details.
+- Related modules.
+- Relevant official documentation links when known.
+
+Maintain `docs/SKILLS_AND_LEARNINGS.md` as a continuously updated learning record.
+
+Organize it into:
+
+### Skills Used
+
+Document technologies and techniques actually used in the codebase.
+
+### Skills Learned
+
+Record new concepts or techniques explored during implementation.
+
+### Practical Examples
+
+Reference actual project files that demonstrate the concepts.
+
+### Problems and Solutions
+
+Record significant bugs, root causes, and verified solutions.
+
+### Best Practices
+
+Document useful conventions established in the project.
+
+### Learning Roadmap
+
+Track relevant skills to improve, clearly distinguishing planned learning from demonstrated proficiency.
+
+Never claim the developer has mastered a technology simply because a package was installed or code was generated.
+
+Distinguish between implemented, studied, and planned skills.
+
+Do not invent personal achievements, certifications, or experience.
+
+---
+
+## 8. Architecture and Technical Decisions
+
+Maintain `docs/ARCHITECTURE.md` with:
+
+- Application architecture.
+- Frontend and backend boundaries.
+- Component hierarchy.
+- Data flow.
+- Integration points.
+- Authentication and authorization flow, if applicable.
+- Deployment architecture.
+- Relevant diagrams using Mermaid when useful.
+
+Maintain `docs/DECISIONS.md` for significant technical decisions.
+
+Each decision should include:
+
+- Decision title.
+- Date.
+- Context and problem.
+- Considered options.
+- Chosen approach.
+- Reason for the decision.
+- Trade-offs and consequences.
+- Current status.
+
+Do not invent historical decisions or claim the user approved a decision without evidence.
+
+If a decision is proposed but not confirmed, label it as Proposed.
+
+---
+
+## 9. Project Status and Changelog
+
+Maintain `docs/PROJECT_STATUS.md` as the current progress tracker.
+
+Include:
+
+- Overall project status.
+- Completed modules.
+- In-progress modules.
+- Upcoming modules.
+- Blockers and unresolved questions.
+- Testing and deployment readiness.
+- Next actionable tasks.
+
+Update it after completing a meaningful task.
+
+Maintain `docs/CHANGELOG.md` for significant project changes.
+
+Use dated entries grouped by:
+
+- Added
+- Changed
+- Fixed
+- Removed
+- Security
+
+Include meaningful feature changes, architecture updates, and important fixes.
+
+Avoid documenting every trivial code edit.
+
+Do not claim a feature is completed until its implementation is actually present.
+
+---
+
+## 10. Documentation and Git Branch Workflow
+
+Follow the project's Git branch and commit rules.
+
+Each independent module must have its dedicated branch.
+
+Keep module implementation and its related documentation together on the same branch.
+
+Examples:
+
+```text
+feature/homepage
+  -> homepage implementation
+  -> docs/modules/homepage.md
+  -> relevant project documentation updates
+
+feature/projects
+  -> projects implementation
+  -> docs/modules/projects.md
+  -> relevant API and architecture documentation updates
+```
+
+Do not create a separate documentation branch for routine documentation updates associated with a module.
+
+When a new module is started, create its documentation in the same module branch.
+
+When a module is completed, commit its implementation and documentation as coherent units.
+
+Use clear commit messages such as:
+
+- `docs(homepage): document homepage architecture`
+- `feat(projects): implement portfolio filtering`
+- `docs(projects): update module implementation details`
+- `docs(project): update deployment and status guides`
+
+Before preparing a PR:
+
+1. Verify that the module documentation matches the code.
+2. Check that all affected project documents are updated.
+3. Check for broken internal documentation links.
+4. Confirm that the project status and changelog are accurate.
+5. Include documentation changes in the module's PR.
+
+Never claim a PR or remote update succeeded unless it actually did.
+
+Follow the existing Git rule requiring explicit authorization for pushing and remote PR creation.
+
+---
+
+## 11. Documentation Quality and Accuracy
+
+All documentation must be:
+
+- Written in clear, professional English.
+- Easy for another developer to understand.
+- Specific to this repository.
+- Organized with headings and concise examples.
+- Consistent with actual code and configuration.
+- Free from duplicated or contradictory information.
+
+Prefer relative links between project documents.
+
+Use actual filenames, routes, package versions, class names, and configuration keys from the repository.
+
+Verify these details before documenting them.
+
+Never fabricate:
+
+- Features.
+- Endpoints.
+- Database tables.
+- Environment variables.
+- Test results.
+- Deployment status.
+- Client requirements.
+- User approvals.
+- Technical decisions.
+
+When information is unknown, mark it as "Needs Confirmation" or "Not Yet Verified".
+
+Never place passwords, tokens, private keys, connection strings containing credentials, or sensitive client data in documentation.
+
+Use placeholders for sensitive configuration values.
+
+---
+
+## 12. Context Recovery for Every New Cursor Session
+
+At the beginning of a new task or conversation, reconstruct project context from the repository.
+
+Read these documents in order:
+
+1. `docs/README.md`
+2. `docs/PROJECT_OVERVIEW.md`
+3. `docs/PROJECT_STATUS.md`
+4. `docs/ARCHITECTURE.md`
+5. `docs/TECH_STACK.md`
+6. The documentation for the relevant module.
+7. Relevant decisions, API, database, and deployment documents.
+
+Then inspect the actual source code and Git status.
+
+Treat source code and verified configuration as authoritative for current implementation details.
+
+Treat documentation as the maintained explanation of that implementation.
+
+If documentation conflicts with code:
+
+- Do not assume the documentation is correct.
+- Identify the discrepancy.
+- Verify the intended behavior.
+- Update the documentation when the correct implementation is established.
+- Ask the user if the intended behavior or business requirement is unclear.
+
+Do not repeatedly read every file in the repository when the task is limited to one module. Read the project overview and relevant module documents first, then inspect related code as needed.
+
+The objective is to preserve project context across sessions without wasting tokens or losing important decisions.
+
+---
+
+## 13. Final Task Checklist
+
+Before considering any meaningful task complete, verify:
+
+- [ ] The implementation matches the requirements.
+- [ ] The relevant module documentation is updated.
+- [ ] The project overview is updated if scope or architecture changed.
+- [ ] Technical stack, API, database, or deployment documents are updated when applicable.
+- [ ] Skills and learnings are recorded when a meaningful new concept was explored.
+- [ ] Project status and changelog are updated where appropriate.
+- [ ] No secrets or sensitive information were added.
+- [ ] Git changes are isolated to the appropriate module branch.
+- [ ] Documentation changes are included in the module's local commits.
+
+At completion, provide a concise summary of:
+
+- What was implemented.
+- Which documentation files were created or updated.
+- Which technical skills and concepts were used.
+- Tests and validation actually performed.
+- Branch and commit information.
+- Remaining work or questions.
+
+Documentation is part of the definition of done for every meaningful module.
